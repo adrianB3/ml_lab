@@ -23,6 +23,25 @@ from sklearn import mixture
 
 np.random.seed(0)
 
+
+def plot_gmm(X, gmm):
+    means = gmm.means_
+    covariances = gmm.covariances_
+    fig = plt.figure(figsize=(10, 10))
+    for m, c in zip(means, covariances):
+        multi_normal = multivariate_normal(mean=m, cov=c)
+        plt.contour(np.sort(X[:, 0]), np.sort(X[:, 1]),
+                    multi_normal.pdf(XY).reshape(len(thin_X), len(thin_X)), colors='black',
+                    alpha=0.3)
+        plt.scatter(m[0], m[1], c='grey', zorder=10, s=100)
+
+    plt.scatter(thin_X[:, 0], thin_X[:, 1])
+
+    plt.title('Clustering with EM-GMM')
+    plt.axis('tight')
+    plt.show()
+
+
 if __name__ == "__main__":
 
     wdbc = datasets.load_breast_cancer()
@@ -39,24 +58,12 @@ if __name__ == "__main__":
     gmm.fit(thin_X)
 
     print('Converged:', gmm.converged_)  # Check if the model has converged
-    means = gmm.means_
-    covariances = gmm.covariances_
-    print('Means', means)
-    print('Covariances', covariances)
+    means_ = gmm.means_
+    covariances_ = gmm.covariances_
+    print('Means', means_)
+    print('Covariances', covariances_)
 
     # display predicted scores by the model as a contour plot
-
-    fig = plt.figure(figsize=(10, 10))
-    for m, c in zip(means, covariances):
-        multi_normal = multivariate_normal(mean=m, cov=c)
-        plt.contour(np.sort(thin_X[:, 0]), np.sort(thin_X[:, 1]), multi_normal.pdf(XY).reshape(len(thin_X), len(thin_X)), colors='black',
-                    alpha=0.3)
-        plt.scatter(m[0], m[1], c='grey', zorder=10, s=100)
-
-    plt.scatter(thin_X[:, 0], thin_X[:, 1])
-
-    plt.title('Clustering with EM-GMM')
-    plt.axis('tight')
-    plt.show()
+    plot_gmm(thin_X, gmm)
 
     print("Finish")
