@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import style
+
 style.use('fivethirtyeight')
 
 from scipy.stats import multivariate_normal
@@ -54,14 +55,36 @@ class GMM:
 
         for i in range(self.iterations):
             """E step"""
-            # todo
+            r_ic = np.zeros((len(self.X), len(self.cov)))
+            for m, co, p, r in zip(self.miu, self.cov, self.pic, range(len(r_ic[0]))):
+                co += self.reg_cov
+                mn = multivariate_normal(mean=m, cov=co)
+                r_ic[:, r] = p * mn.pdf(self.X) / np.sum([pi_c * multivariate_normal(mean=mu_c, cov=cov_c).pdf(self.X)
+                                                          for pi_c, mu_c, cov_c in
+                                                          zip(self.pic, self.miu, self.cov + self.reg_cov)], axis=0)
 
             """M step"""
-            # todo
+            self.miu = []
+            self.cov = []
+            self.pic = []
+            log_likelihood = []
+
+            for c in range(len(r_ic[0])):
+                m_c = np.sum(r_ic[:, c], axis=0)
+                mu_c = (1 / m_c) * np.sum(self.X * r_ic[:, c].reshape(len(self.X), 1), axis=0)
+                self.miu.append(mu_c)
+                self.cov.append(((1 / m_c) * np.dot((np.array(r_ic[:, c]).reshape(len(self.X), 1) * (self.X - mu_c)).T,
+                                                    (self.X - mu_c))) + self.reg_cov)
+
+                self.pic.append(m_c / np.sum(r_ic))
+
+            log_likelihoods.append(np.log(np.sum([k * multivariate_normal(self.miu[i], self.cov[j]).pdf(self.X)
+                                                  for k, i, j in zip(self.pic, range(len(self.miu)), range(len(self.cov)))])))
+
+        plot_gmm(self.X, self.miu, self.cov, "Final step")
 
 
 def plot_gmm(X, means, covariances, title):
-
     x, y = np.meshgrid(np.sort(X[:, 0]), np.sort(X[:, 1]))
     XY = np.array([x.flatten(), y.flatten()]).T
 
@@ -81,16 +104,15 @@ def plot_gmm(X, means, covariances, title):
 
 
 if __name__ == "__main__":
-
     wdbc = datasets.load_breast_cancer()
     X_data = wdbc.data
     y = wdbc.target
 
     thin_X = X_data[:, 0:2]
 
-    gmm_own = GMM(X=thin_X, n_components=2, iterations=50)
+    gmm_own = GMM(X=thin_X, n_components=3, iterations=100)
     gmm_own.run()
-
+    # TODO bug -- needs n+1 components to run ok
     # gmm = mixture.GaussianMixture(n_components=2,
     #                               covariance_type='full')
     # gmm.fit(thin_X)
