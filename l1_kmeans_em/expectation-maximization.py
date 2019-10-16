@@ -100,7 +100,7 @@ def plot_gmm(X, means, covariances, title):
 
     plt.title(title)
     plt.axis('tight')
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
@@ -110,20 +110,19 @@ if __name__ == "__main__":
 
     thin_X = X_data[:, 0:2]
 
-    gmm_own = GMM(X=thin_X, n_components=3, iterations=100)
+    gmm_own = GMM(X=thin_X, n_components=2, iterations=50)
     gmm_own.run()
-    # TODO bug -- needs n+1 components to run ok
-    # gmm = mixture.GaussianMixture(n_components=2,
-    #                               covariance_type='full')
-    # gmm.fit(thin_X)
-    #
-    # print('Converged:', gmm.converged_)  # Check if the model has converged
-    # means_ = gmm.means_
-    # covariances_ = gmm.covariances_
-    # print('Means', means_)
-    # print('Covariances', covariances_)
-    #
-    # # display predicted scores by the model as a contour plot
-    # plot_gmm(thin_X, gmm)
 
+    gmm = mixture.GMM(n_components=2, covariance_type='full', n_iter=50)
+    gmm.fit(thin_X)
+
+    print('Converged:', gmm.converged_)  # Check if the model has converged
+    means_ = gmm.means_
+    covariances_ = gmm.covars_
+    print('Means', means_)
+    print('Covariances', covariances_)
+
+    # display predicted scores by the model as a contour plot
+    plot_gmm(thin_X, means_, covariances_, "sklearn final")
+    plt.show()
     print("Finish")
