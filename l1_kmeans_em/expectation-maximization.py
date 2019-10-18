@@ -113,12 +113,12 @@ if __name__ == "__main__":
     gmm_own = GMM(X=thin_X, n_components=2, iterations=50)
     gmm_own.run()
 
-    gmm = mixture.GMM(n_components=2, covariance_type='full', n_iter=50)
+    gmm = mixture.GaussianMixture(n_components=2, covariance_type='full', max_iter=50)
     gmm.fit(thin_X)
 
     print('Converged:', gmm.converged_)  # Check if the model has converged
     means_ = gmm.means_
-    covariances_ = gmm.covars_
+    covariances_ = gmm.covariances_
     print('Means', means_)
     print('Covariances', covariances_)
 
