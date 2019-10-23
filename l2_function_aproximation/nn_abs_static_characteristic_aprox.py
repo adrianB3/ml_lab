@@ -2,8 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import tensorflow as tf
-from tensorflow_core.python.keras.models import Model
-from tensorflow_core.python.keras.layers.core import Dense, Flatten
 
 np.random.seed(100)
 
@@ -24,17 +22,39 @@ def make_abs_dataset(show_plot: bool = False):
     return miu
 
 
-class SimpleModel(Model):
-    def __init__(self):
+class SimpleModel(tf.keras.models.Model):
+    def __init__(self, input_size=2, output_size=2):
         super(SimpleModel, self).__init__()
-        self.d1 = Dense(units=18, activation='relu')
-        self.d2 = Dense(units=10, activation='softmax')
+        self.d1 = tf.keras.layers.Dense(units=input_size, activation='relu')
+        self.d2 = tf.keras.layers.Dense(units=10, activation='relu')
+        self.d3 = tf.keras.layers.Dense(units=output_size, activation='softmax')
 
     def call(self, x):
         x = self.d1(x)
-        return self.d2(x)
+        x = self.d2(x)
+        return self.d3(x)
+
+
+@tf.function
+def train_step(data, labels, model, loss_obj, optim):
+    with tf.GradientTape() as tape:
+        predictions = model(data)
+        loss = loss_obj(labels, predictions)
+    gradients = tape.gradient(loss, model.trainable_variables)
+    optim.apply_gradients(zip(gradients, model.trainable_variables))
+    train_loss(loss)
+    train_accuracy(labels, predictions)
 
 
 if __name__ == "__main__":
     train_data = make_abs_dataset(show_plot=True)
     model = SimpleModel()
+    loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
+    optimizer = tf.keras.optimizers.Adam()
+
+    train_loss = tf.keras.metrics.Mean(name="train_loss")
+    train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name="train_accuracy")
+
+    test_loss = tf.keras.metrics.Mean(name="test_loss")
+    test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name="test_accuracy")
+
