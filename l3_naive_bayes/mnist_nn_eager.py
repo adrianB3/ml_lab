@@ -6,12 +6,13 @@ import numpy as np
 #hyperparams
 batch_size = 12
 
+
 class SimpleModel(tf.keras.models.Model):
     def __init__(self):
         super(SimpleModel, self).__init__()
-        self.input_layer = tf.keras.layers.Dense(input_shape=(28, 28, 1), units=128, activation='relu')
+        self.input_layer = tf.keras.layers.Dense(input_shape=(28, 28, 1), units=784, activation='relu')
         # self.conv1 = tf.keras.layers.Conv2D(32, 3, activation='relu')
-        self.dense0 = tf.keras.layers.Dense(128, activation='relu')
+        self.dense0 = tf.keras.layers.Dense(256, activation='relu')
         self.flatten = tf.keras.layers.Flatten()
         self.output_layer = tf.keras.layers.Dense(10, activation='softmax')
 
@@ -21,6 +22,7 @@ class SimpleModel(tf.keras.models.Model):
         x = self.flatten(x)
         x = self.output_layer(x)
         return x
+
 
 if __name__ == "__main__":
 
@@ -48,12 +50,6 @@ if __name__ == "__main__":
     test_loss = tf.keras.metrics.Mean(name='test_loss')
     test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name='test_accuracy')
 
-    # stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    # writer = tf.summary.create_file_writer("\\logs\\tensorboard")
-    # tf.summary.trace_on(graph=True, profiler=True)
-    logdir = "logs/scalars/" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
-
 
     @tf.function
     def train_step(images, labels):
@@ -75,8 +71,7 @@ if __name__ == "__main__":
         test_loss(t_loss)
         test_accuracy(labels, predictions)
 
-
-    EPOCHS = 1
+    EPOCHS = 10
 
     for epoch in range(EPOCHS):
         for images, labels in train_ds:
