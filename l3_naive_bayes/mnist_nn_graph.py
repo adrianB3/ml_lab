@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-from tensorflow.python import debug as tf_debug
-
-tf.compat.v1.keras.backend.set_session(
-    tf_debug.TensorBoardDebugWrapperSession(tf.compat.v1.Session(), "TMDM977W:10000"))
+# from tensorflow.python import debug as tf_debug
+#
+# tf.compat.v1.keras.backend.set_session(
+#     tf_debug.TensorBoardDebugWrapperSession(tf.compat.v1.Session(), "localhost:10000"))
 
 # hyperparams
 batch_size = 12
@@ -153,7 +153,7 @@ if __name__ == "__main__":
               y=y_train,
               epochs=epochs,
               batch_size=batch_size,
-              callbacks=[tensorboard_callback, lr_callback],
+              callbacks=[lr_callback],
               validation_data=(val_x, val_y),
               verbose=1)
 
