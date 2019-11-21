@@ -15,6 +15,21 @@ from sklearn import svm
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
+
+def plot_decision_function(classifier, title):
+    # plot the decision function
+    xx, yy = np.meshgrid(np.linspace(5, 30, 500), np.linspace(5, 40, 500))
+
+    Z = classifier.decision_function(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    # plot the line, the points, and the nearest vectors to the plane
+    plt.contour(xx, yy, Z, 0, alpha=0.75, cmap=plt.cm.bone)
+    plt.scatter(features.loc[:, 2], features.loc[:, 3], c=targets, alpha=0.9,
+                 cmap=plt.cm.bone, edgecolors='black')
+
+
+
 if __name__ == "__main__":
 
     data = pd.read_csv(Path("../data/wdbc.data"), header=None)
@@ -38,20 +53,25 @@ if __name__ == "__main__":
     scores1 = []
     scores2 = []
 
-    for kernel_ in kernels:
-        for c_ in cs:
-            print(c_)
-            clf = svm.SVC(gamma='scale', kernel=kernel_, C=c_)
-            clf.fit(x_train, y_train)
-            y_pred = clf.predict(x_test)
-            score = accuracy_score(y_test, y_pred)
-            if kernel_ == 'rbf':
-                scores1.append(score)
-            else:
-                scores2.append(score)
+    # for kernel_ in kernels:
+    #     for c_ in cs:
+    #         print(c_)
+    #         clf = svm.SVC(gamma='scale', kernel=kernel_, C=c_)
+    #         clf.fit(x_train, y_train)
+    #         y_pred = clf.predict(x_test)
+    #         score = accuracy_score(y_test, y_pred)
+    #         if kernel_ == 'rbf':
+    #             scores1.append(score)
+    #         else:
+    #             scores2.append(score)
 
+    # plt.figure()
+    # plt.plot(cs, scores1, 'b-', cs, scores2, 'r-')
+
+    clf = svm.SVC(gamma='scale', kernel='rbf', C=1000)
+    clf.fit(x_train, y_train)
     plt.figure()
-    plt.plot(cs, scores1, 'b-', cs, scores2, 'r-')
+    plot_decision_function(clf, "Decision plane")
 
     plt.show()
     print("Finished")
