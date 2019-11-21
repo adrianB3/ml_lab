@@ -34,13 +34,13 @@ if __name__ == "__main__":
     # TODO - cross validation check
 
     kernels = ['rbf', 'linear']
-    cs = np.arange(0.001, 2, 0.01)
+    cs = np.logspace(-1, 3, 100)
     scores1 = []
     scores2 = []
 
     for kernel_ in kernels:
         for c_ in cs:
-
+            print(c_)
             clf = svm.SVC(gamma='scale', kernel=kernel_, C=c_)
             clf.fit(x_train, y_train)
             y_pred = clf.predict(x_test)
