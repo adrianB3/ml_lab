@@ -1,7 +1,6 @@
 from datetime import datetime
 
 import tensorflow as tf
-import numpy as np
 
 #hyperparams
 batch_size = 12
