@@ -34,6 +34,21 @@ class KMeans:
             rand_int = random.randint(0, num_samples - 1)
             self.centroids.append(X[rand_int])
 
+    def centroids_kmeansplusplus_init(self, X):
+        num_samples = len(X)
+        rand_int = random.randint(0, num_samples - 1)
+        self.centroids.append(X[rand_int])
+        for c in range(self.n_clusters - 1):
+            dist = []
+            for sample in X:
+                if sample not in np.array(self.centroids):
+                    distances = [self.euclidean_distance(sample, centroid) for centroid in self.centroids]
+                    min_dist = distances.index(min(distances))
+                    dist.append(min_dist)
+            dist = np.array(dist)
+            next_centroid = X[np.argmax(dist), :]
+            self.centroids.append(next_centroid)
+
     def euclidean_distance(self, p, q):
         squared_distance = 0
         for i in range(len(p)):
@@ -46,7 +61,7 @@ class KMeans:
         if self.center_init == 'random':
             self.centroids_random_init(X)
         elif self.center_init == 'k-means++':
-            pass
+            self.centroids_kmeansplusplus_init(X)
         else:
             print("No init algo selected")
             return
@@ -84,10 +99,10 @@ if __name__ == "__main__":
     y = iris.target
     x = x[:, 0:2]
 
-    estimator = KMeans(n_clusters=3)
+    estimator = KMeans(n_clusters=3, center_init='k-means++')
     estimator.fit(x)
 
-    estimator_sklearn = KMeansSK(n_clusters=3, init='random')
+    estimator_sklearn = KMeansSK(n_clusters=3, init='k-means++')
     estimator_sklearn.fit(x)
 
     colors = 10*['r', 'g', 'b', 'c', 'k']
