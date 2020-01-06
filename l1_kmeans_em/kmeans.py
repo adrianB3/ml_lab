@@ -3,18 +3,15 @@
 Clustering using k-means algorithm
 
 """
-from math import sqrt
+
 import random
-
 import numpy as np
-
 import matplotlib.pyplot as plt
-from matplotlib import style
 
-style.use('fivethirtyeight')
-
+from math import sqrt
 from sklearn import datasets
 from sklearn.cluster import KMeans as KMeansSK
+
 np.random.seed(42)
 
 
