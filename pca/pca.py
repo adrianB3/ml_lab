@@ -49,7 +49,6 @@ def main():
     data = datasets.load_digits()
     X = data.data
     y = data.target
-    
     # Project the data onto the 2 primary principal components
     X_trans = PCA().transform(X, 2)
     
