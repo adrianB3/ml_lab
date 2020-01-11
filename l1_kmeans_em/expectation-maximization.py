@@ -11,8 +11,8 @@ https://scikit-learn.org/stable/modules/mixture.html#gmm
 import numpy as np
 
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
-from mpl_toolkits.mplot3d import Axes3D
+#from matplotlib.colors import LogNorm
+#from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import style
 
 style.use('fivethirtyeight')
