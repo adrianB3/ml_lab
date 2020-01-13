@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
     thin_X = X_data[:, 0:2]
 
-    gmm_own = GMM(X=thin_X, n_components=2, iterations=50)
+    gmm_own = GMM(X=thin_X, n_components=3, iterations=50)
     gmm_own.run()
 
     gmm = mixture.GaussianMixture(n_components=2, covariance_type='full', max_iter=50)
