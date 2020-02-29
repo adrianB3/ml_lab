@@ -8,15 +8,13 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-# from tensorflow.python import debug as tf_debug
-#
-# tf.compat.v1.keras.backend.set_session(
-#     tf_debug.TensorBoardDebugWrapperSession(tf.compat.v1.Session(), "localhost:10000"))
+from tensorflow_core.python import confusion_matrix
+from sklearn.metrics import roc_curve
 
 # hyperparams
+
 batch_size = 12
-epochs = 5
+epochs = 1
 num_classes = 10
 
 
@@ -32,7 +30,7 @@ def lr_schedule(epoch):
     if epoch > 30:
         learning_rate = 0.00005
 
-    tf.summary.scalar('learning rate', data=learning_rate, step=epoch)
+    # tf.summary.scalar('learning rate', data=learning_rate, step=epoch)
     return learning_rate
 
 
@@ -44,7 +42,7 @@ def plot_confusion_matrix(cm, class_names):
     cm (array, shape = [n, n]): a confusion matrix of integer classes
     class_names (array, shape = [n]): String names of the integer classes
     """
-    figure = plt.figure(figsize=(8, 8))
+    figure = plt.figure(figsize=(10, 10))
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
     plt.title("Confusion matrix")
     plt.colorbar()
@@ -101,45 +99,16 @@ if __name__ == "__main__":
 
     y_train = tf.one_hot(y_train, num_classes)
     val_y = tf.one_hot(val_y, num_classes)
-    y_test = tf.one_hot(y_test, num_classes)
-    train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-    test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test))
+    # y_test = tf.one_hot(y_test, num_classes)
+    # train_ds = tf.data.Dataset.from_tensor_slices((x_train, y_train))
+    # test_ds = tf.data.Dataset.from_tensor_slices((x_test, y_test))
 
-
-    def log_confusion_matrix(epoch, logs):
-        # Use the model to predict the values from the validation dataset.
-        test_pred_raw = model.predict(x_test)
-        test_pred = np.argmax(test_pred_raw, axis=1)
-
-        # Calculate the confusion matrix.
-        cm = sklearn.metrics.confusion_matrix(y_test, test_pred)
-        # Log the confusion matrix as an image summary.
-        figure = plot_confusion_matrix(cm, class_names=["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"])
-        cm_image = plot_to_image(figure)
-
-        # Log the confusion matrix as an image summary.
-        with file_writer_cm.as_default():
-            tf.summary.image("Confusion Matrix", cm_image, step=epoch)
-
-    logdir = "logs\\scalars" + datetime.now().strftime("%Y%m%d-%H%M%S")
-    file_writer = tf.summary.create_file_writer(logdir + "\\metrics")
-    file_writer_cm = tf.summary.create_file_writer(logdir + '/cm')
-    file_writer.set_as_default()
     lr_callback = tf.keras.callbacks.LearningRateScheduler(lr_schedule)
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir, histogram_freq=1, profile_batch=3)
-    cm_callback = tf.keras.callbacks.LambdaCallback(on_epoch_end=log_confusion_matrix)
 
     model = tf.keras.Sequential(
         [
-            tf.keras.layers.Conv2D(32, 3, activation="relu", input_shape=(28, 28, 1)),
-            tf.keras.layers.MaxPooling2D(),
-            tf.keras.layers.Conv2D(64, 3, activation="relu"),
-            tf.keras.layers.MaxPooling2D(),
-            tf.keras.layers.Conv2D(128, 3, activation="relu"),
-            tf.keras.layers.MaxPooling2D(),
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(128, activation="relu"),
-            tf.keras.layers.Dense(num_classes, activation="softmax"),
+            tf.keras.layers.Dense(num_classes, activation="softmax")
         ]
     )
 
@@ -157,9 +126,17 @@ if __name__ == "__main__":
               validation_data=(val_x, val_y),
               verbose=1)
 
-    # Model evaluation on test set
-    eval_metrics_list = model.evaluate(x=x_test,
-                                       y=y_test,
-                                       verbose=1)
+# %%
 
-    print(eval_metrics_list)
+    y_pred = model.predict_classes(x_test)
+
+    cmat = confusion_matrix(labels=y_test, predictions=y_pred, num_classes=num_classes).numpy()
+
+    plot_confusion_matrix(cmat, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    plt.show()
+    # # Model evaluation on test set
+    # eval_metrics_list = model.evaluate(x=x_test,
+    #                                    y=y_test,
+    #                                    verbose=1)
+    #
+    # print(eval_metrics_list)
